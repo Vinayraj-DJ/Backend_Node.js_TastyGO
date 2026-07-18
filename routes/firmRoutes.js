@@ -3,13 +3,15 @@ const express = require("express");
 const router = express.Router();
 
 // Import Firm Controller
-const { addFirm ,deleteFirm} = require("../controllers/firmController");
+const { addFirm, getFirmById, deleteFirm } = require("../controllers/firmController");
 
 // Import Verify Token Middleware
 const verifyToken = require("../middleware/verifyToken");
 
 // Import Multer Middleware
 const upload = require("../middleware/upload");
+
+router.get("/:firmId", getFirmById);
 
 router.delete(
     "/delete-firm/:firmId",
@@ -29,5 +31,4 @@ router.post(
     addFirm
 
 );
-
 module.exports = router;

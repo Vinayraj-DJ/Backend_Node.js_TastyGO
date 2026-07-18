@@ -7,7 +7,9 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const path = require("path");   // Import Path Module
 const productRoutes=require("./routes/productRoutes")
+const cors=require("cors")
 dotenv.config();
+
 
 const app = express();
 
@@ -26,7 +28,7 @@ connectDB();
 
 // Middleware to Read JSON Data
 app.use(express.json());
-
+app.use(cors());
 // Make Uploads Folder Public
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

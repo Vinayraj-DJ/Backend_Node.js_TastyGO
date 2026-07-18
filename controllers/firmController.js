@@ -7,6 +7,7 @@ const Vendor = require("../models/Vendor");
 // Create Add Firm Controller
 const addFirm = async (req, res) => {
 
+
     try {
 
         // Get Logged-in Vendor ID from verifyToken Middleware
@@ -27,6 +28,9 @@ const addFirm = async (req, res) => {
             });
 
         }
+         if(vendor.firm.length>0){
+        return res.status(400).json({message:"vendor can have only one firm"})
+    }
 
         // Create New Firm
         const firm = new Firm({
@@ -60,7 +64,8 @@ const addFirm = async (req, res) => {
 
         // Save Firm into MongoDB
         const savedFirm = await firm.save();
-
+// addinf firm id
+const  firmId=savedFirm._id
         // Save Firm ID inside Vendor Collection
         // Vendor model contains an array called "firm"
         vendor.firm.push(savedFirm._id);
@@ -68,6 +73,9 @@ const addFirm = async (req, res) => {
         // Save Updated Vendor
         await vendor.save();
 
+        // condition as only one fir m for a vendor
+
+   
         // Fetch the newly saved Firm again
         // populate() replaces Vendor ID with complete Vendor Details
         // "-password" hides the password field
@@ -80,9 +88,10 @@ const addFirm = async (req, res) => {
             success: true,
 
             message: "Firm Added Successfully",
+            firmId:firmId
 
             // Send Firm with Vendor Details
-            firm: populatedFirm
+            // firm: populatedFirm
 
         });
 
@@ -101,6 +110,33 @@ const addFirm = async (req, res) => {
 
     }
 
+};
+
+const getFirmById = async (req, res) => {
+    try {
+        const { firmId } = req.params;
+
+        const firm = await Firm.findById(firmId);
+
+        if (!firm) {
+            return res.status(404).json({
+                success: false,
+                message: "Firm not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Firm fetched successfully",
+            firmName: firm.firmName,
+            firm
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };
 
 const deleteFirm = async (req, res) => {
@@ -153,6 +189,8 @@ const deleteFirm = async (req, res) => {
 // Export Controller
 module.exports = {
 
-    addFirm,deleteFirm
+    addFirm,
+    getFirmById,
+    deleteFirm
 
 };

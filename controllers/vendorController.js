@@ -2,124 +2,94 @@ const Vendor=require('../models/Vendor')
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
 
-const vendorRegister=async(req,res)=>{
-    const {username,email,password}=req.body
-    try{
-    const vendorEmail=await Vendor.findOne({email})
-    if(vendorEmail){
-        return res.status(400).json({
-            message:"Email alredy exists"
-        })
-    } 
+const vendorRegister = async (req, res) => {
+    const { username, email, password } = req.body;
+    try {
+        const cleanedEmail = email ? email.trim() : "";
+        const vendorEmail = await Vendor.findOne({ email: cleanedEmail });
+        if (vendorEmail) {
+            return res.status(400).json({
+                success: false,
+                message: "Email already exists"
+            });
+        } 
 
-    const hashedPassword=await bcrypt.hash(password,10)
-    const newVendor=new Vendor({
-        username,email,password:hashedPassword
-    })
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newVendor = new Vendor({
+            username,
+            email: cleanedEmail,
+            password: hashedPassword
+        });
 
-    await newVendor.save()
-    res.status(201).json({
-        message:"vendor registered successfully"
-    })
-}catch(error){
-return res.status(500).json({
-    message:error.message
-})
-}
-}
+        await newVendor.save();
+        res.status(201).json({
+            success: true,
+            message: "Vendor registered successfully"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 
 const vendorLogin = async (req, res) => {
-
-    // Get email and password from request body
     const { email, password } = req.body;
 
     try {
+        const cleanedEmail = email ? email.trim() : "";
+        const vendor = await Vendor.findOne({ email: cleanedEmail });
 
-        // Find vendor using email
-        const vendor = await Vendor.findOne({ email });
-
-        // Check whether vendor exists
         if (!vendor) {
-
             return res.status(404).json({
-
                 success: false,
-
                 message: "Invalid Email"
-
             });
-
         }
 
-        // Compare entered password with hashed password
         const isMatch = await bcrypt.compare(password, vendor.password);
 
-        // Check password
         if (!isMatch) {
-
             return res.status(401).json({
-
                 success: false,
-
                 message: "Invalid Password"
-
             });
-
         }
 
-        // Generate JWT Token
         const token = jwt.sign(
-
-            // Payload
             {
                 vendorId: vendor._id
             },
-
-            // Secret Key
-            process.env.JWT_SECRET,
-
-            // Expiry Time
+            process.env.JWT_SECRET || "secret_key",
             {
                 expiresIn: "1h"
             }
-
         );
 
-        // Send Response
+        let firmId = null;
+        if (vendor.firm && vendor.firm.length > 0) {
+            const firstFirm = vendor.firm[0];
+            firmId = firstFirm && firstFirm._id ? firstFirm._id.toString() : firstFirm.toString();
+        }
+
         return res.status(200).json({
-
             success: true,
-
             message: "Login Successful",
-
             token: token,
-
+            firmId,
             vendor: {
-
                 id: vendor._id,
-
                 username: vendor.username,
-
                 email: vendor.email
-
             }
-
         });
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
         return res.status(500).json({
-
             success: false,
-
             message: error.message
-
         });
-
     }
-
 };
 
 // Get All Vendors

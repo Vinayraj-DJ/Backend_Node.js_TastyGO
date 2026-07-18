@@ -33,11 +33,9 @@ const productSchema = new mongoose.Schema({
         type: String
     },
     bestSeller:{
-         type:String
+         type:Boolean
     },
-    discription:{
-        type:String
-    },
+    
 
     // Product belongs to one Firm
     firm: [{
