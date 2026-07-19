@@ -32,6 +32,16 @@ const addFirm = async (req, res) => {
         return res.status(400).json({message:"vendor can have only one firm"})
     }
 
+        let imageString = "";
+        if (req.file) {
+            if (req.file.buffer) {
+                const mimeType = req.file.mimetype || "image/jpeg";
+                imageString = `data:${mimeType};base64,${req.file.buffer.toString("base64")}`;
+            } else if (req.file.path || req.file.filename) {
+                imageString = req.file.path || req.file.filename;
+            }
+        }
+
         // Create New Firm
         const firm = new Firm({
 
@@ -50,10 +60,7 @@ const addFirm = async (req, res) => {
             // Get Offer from Postman
             offer: req.body.offer,
 
-            // Store Uploaded Image Name
-            // If image is uploaded using Multer,
-            // req.file will contain the file details.
-            image: req.file ? req.file.filename : ""
+            image: imageString
 
         });
 
