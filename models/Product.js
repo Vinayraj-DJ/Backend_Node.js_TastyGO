@@ -38,7 +38,7 @@ const productSchema = new mongoose.Schema({
     
 
     // Product belongs to one Firm
-    firm: [{
+    firm: {
 
         type: mongoose.Schema.Types.ObjectId,
 
@@ -46,7 +46,7 @@ const productSchema = new mongoose.Schema({
 
         required: true
 
-    }]
+    }
 
 },
 {
