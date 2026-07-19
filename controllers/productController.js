@@ -226,6 +226,16 @@ const addProduct = async (req, res) => {
             bestSeller === "Yes" ||
             bestSeller === "true";
 
+        let imageString = "";
+        if (req.file) {
+            if (req.file.buffer) {
+                const mimeType = req.file.mimetype || "image/jpeg";
+                imageString = `data:${mimeType};base64,${req.file.buffer.toString("base64")}`;
+            } else if (req.file.path || req.file.filename) {
+                imageString = req.file.path || req.file.filename;
+            }
+        }
+
         const product = new Product({
             productName,
             price: parsedPrice,
@@ -237,8 +247,8 @@ const addProduct = async (req, res) => {
             description: description || "",
             bestSeller: isBestSeller,
 
-            // Cloudinary or local image path
-            image: req.file ? (req.file.path || req.file.filename) : "",
+            // Base64 Data URI or image path
+            image: imageString,
 
             firm: firm._id
         });
