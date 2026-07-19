@@ -8,89 +8,56 @@ const Firm = require("../models/Firm");
 // Add Product Controller
 // ===========================
 const addProduct = async (req, res) => {
-
     try {
-
-        // Get Firm ID from URL
         const { firmId } = req.params;
 
-        // Find Firm in Database
-        const firm = await Firm.findById(firmId);
-
-        // Check Firm Exists or Not
-        if (!firm) {
-
-            return res.status(404).json({
-
+        if (!firmId) {
+            return res.status(400).json({
                 success: false,
-
-                message: "Firm Not Found"
-
+                message: "Firm ID is required"
             });
-
         }
 
-        // Create New Product
+        const firm = await Firm.findById(firmId);
+
+        if (!firm) {
+            return res.status(404).json({
+                success: false,
+                message: "Firm Not Found"
+            });
+        }
+
+        const { productName, price, category, description, bestSeller } = req.body;
+
+        const isBestSeller = bestSeller === true || bestSeller === "Yes" || bestSeller === "true";
+
         const product = new Product({
-
-            // Get Product Name
-            productName: req.body.productName,
-
-            // Get Product Price
-            price: req.body.price,
-
-            // Get Product Category
-            category: req.body.category,
-
-            // Get Product Description
-            description: req.body.description,
-
-            // Store Uploaded Image Name
+            productName,
+            price,
+            category: category ? (Array.isArray(category) ? category : [category]) : [],
+            description,
+            bestSeller: isBestSeller,
             image: req.file ? req.file.filename : "",
-
-            // Connect Product with Firm
             firm: firm._id
-
         });
 
-        // Save Product into MongoDB
         const savedProduct = await product.save();
 
-        // Save Product ID inside Firm Collection
         firm.product.push(savedProduct._id);
-
-        // Save Updated Firm
         await firm.save();
 
-        // Get Product with Firm Details
-        const populatedProduct = await Product.findById(savedProduct._id)
-            .populate("firm");
-
-        // Send Success Response
         return res.status(201).json({
-
             success: true,
-
             message: "Product Added Successfully",
-
-            product: populatedProduct
-
+            product: savedProduct
         });
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
+        console.error("Error adding product:", error);
         return res.status(500).json({
-
             success: false,
-
-            message: error.message
-
+            message: error.message || "Failed to add product"
         });
-
     }
-
 };
 
 const getProductsByFirm = async(req,res)=>{

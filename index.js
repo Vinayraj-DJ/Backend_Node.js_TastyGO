@@ -38,7 +38,13 @@ app.use("/vendor", vendorRoutes);
 // Firm Routes
 app.use("/firm", firmRoutes);
 
-app.use("/product",productRoutes)
+// Product Routes
+app.use("/product", productRoutes);
+
+// Home Route
+app.get("/", (req, res) => {
+    res.send("<h1>TastyGo Backend API Server is Running</h1>");
+});
 
 app.listen(PORT, () => {
 

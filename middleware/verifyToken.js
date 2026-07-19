@@ -42,11 +42,8 @@ const verifyToken = async (req, res, next) => {
         // Verify the JWT Token using the secret key
         // If token is valid, it returns decoded data
         const decoded = jwt.verify(
-
             token,
-
-            process.env.JWT_SECRET
-
+            process.env.JWT_SECRET || "this is my secrete key"
         );
 
         // Find Vendor using Vendor ID stored inside the token

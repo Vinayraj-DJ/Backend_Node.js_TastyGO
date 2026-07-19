@@ -61,7 +61,7 @@ const vendorLogin = async (req, res) => {
             {
                 vendorId: vendor._id
             },
-            process.env.JWT_SECRET || "secret_key",
+            process.env.JWT_SECRET || "this is my secrete key",
             {
                 expiresIn: "1h"
             }
