@@ -188,10 +188,10 @@ const addProduct = async (req, res) => {
     try {
         const { firmId } = req.params;
 
-        if (!firmId) {
+        if (!firmId || firmId === "undefined" || firmId === "null") {
             return res.status(400).json({
                 success: false,
-                message: "Firm ID is required"
+                message: "Valid Firm ID is required"
             });
         }
 
@@ -206,6 +206,21 @@ const addProduct = async (req, res) => {
 
         const { productName, price, category, description, bestSeller } = req.body;
 
+        if (!productName || price === undefined || price === null || price === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Product name and price are required"
+            });
+        }
+
+        const parsedPrice = Number(price);
+        if (isNaN(parsedPrice)) {
+            return res.status(400).json({
+                success: false,
+                message: "Price must be a valid number"
+            });
+        }
+
         const isBestSeller =
             bestSeller === true ||
             bestSeller === "Yes" ||
@@ -213,22 +228,26 @@ const addProduct = async (req, res) => {
 
         const product = new Product({
             productName,
-            price,
+            price: parsedPrice,
             category: category
                 ? Array.isArray(category)
                     ? category
                     : [category]
                 : [],
-            description,
+            description: description || "",
             bestSeller: isBestSeller,
 
-            // Cloudinary Image URL
-            image: req.file ? req.file.path : "",
+            // Cloudinary or local image path
+            image: req.file ? (req.file.path || req.file.filename) : "",
 
             firm: firm._id
         });
 
         const savedProduct = await product.save();
+
+        if (!Array.isArray(firm.product)) {
+            firm.product = [];
+        }
 
         firm.product.push(savedProduct._id);
         await firm.save();

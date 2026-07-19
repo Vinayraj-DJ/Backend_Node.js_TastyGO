@@ -15,37 +15,35 @@ const productSchema = new mongoose.Schema({
     },
 
     // Product Category
-    category:{
-        type:[{
-            type:String,
-            enum:["veg","non-veg"]
+    category: {
+        type: [{
+            type: String,
+            enum: ["veg", "non-veg"]
         }]
     },
 
     // Product Description
     description: {
         type: String,
-        required: true
+        default: ""
     },
 
     // Product Image
     image: {
-        type: String
+        type: String,
+        default: ""
     },
-    bestSeller:{
-         type:Boolean
+
+    bestSeller: {
+        type: Boolean,
+        default: false
     },
-    
 
     // Product belongs to one Firm
     firm: {
-
         type: mongoose.Schema.Types.ObjectId,
-
         ref: "Firm",
-
         required: true
-
     }
 
 },
@@ -53,4 +51,4 @@ const productSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product", productSchema);

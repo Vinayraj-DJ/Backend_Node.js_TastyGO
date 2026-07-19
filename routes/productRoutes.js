@@ -13,18 +13,32 @@ const verifyToken = require("../middleware/verifyToken");
 // Import Multer Middleware
 const upload = require("../middleware/upload");
 
+// Upload error handler wrapper
+const handleUpload = (req, res, next) => {
+    upload.single("image")(req, res, (err) => {
+        if (err) {
+            console.error("Multer/Cloudinary Upload Error:", err);
+            return res.status(400).json({
+                success: false,
+                message: err.message || "Image upload failed"
+            });
+        }
+        next();
+    });
+};
+
 // ===============================
 // Add Product Route
 // ===============================
 // POST /product/add-product/:firmId
 //
 // verifyToken  -> Checks whether Vendor is Logged In
-// upload.single("image") -> Uploads Product Image
+// handleUpload -> Handles Product Image Upload cleanly
 // addProduct -> Saves Product into MongoDB
 router.post(
     "/add-product/:firmId",
     verifyToken,
-    upload.single("image"),
+    handleUpload,
     addProduct
 );
 router.get(
