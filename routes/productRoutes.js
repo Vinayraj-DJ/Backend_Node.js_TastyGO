@@ -46,6 +46,11 @@ router.get(
     getProductsByFirm
 );
 
+router.get(
+    "/:firmId/products",
+    getProductsByFirm
+);
+
 router.delete(
     "/delete-product/:productId",
     verifyToken,
