@@ -69,6 +69,13 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const productRoutes = require("./routes/productRoutes");
 const cors = require("cors");
+const path=require("path")
+
+// app.use(express.json());
+// app.use(cors());
+
+// Make uploads folder public
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 dotenv.config();
 
@@ -82,7 +89,7 @@ connectDB();
 // Middleware to Read JSON Data
 app.use(express.json());
 app.use(cors());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Vendor Routes
 app.use("/vendor", vendorRoutes);
 
